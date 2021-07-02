@@ -46,7 +46,7 @@ require("dotenv").config();
 var port = process.env.PORT || 4000;
 // Upload new Pixel Mike post to Instagram every day at 12:00 PM
 cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void 0, function () {
-    var cookieStore, client;
+    var cookieStore, client, instagramPostFunction, loginFunction;
     return __generator(this, function (_a) {
         cookieStore = new FileCookieStore("./cookies.json");
         client = new Instagram({
@@ -56,45 +56,69 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
         }, {
             language: "en-US",
         });
-        wordpos.randAdjective({ count: 1 }, function (result) { return __awaiter(void 0, void 0, void 0, function () {
-            var resultWord, newDesc, newCaption;
+        instagramPostFunction = function () {
+            wordpos.randAdjective({ count: 1 }, function (result) { return __awaiter(void 0, void 0, void 0, function () {
+                var resultWord, newDesc, newCaption;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            resultWord = result[0].replace("_", " ");
+                            newDesc = resultWord.slice(result[0].length - 3) === "ing"
+                                ? resultWord
+                                : "feeling " + resultWord;
+                            newCaption = "Pixel Mike is " + newDesc + " today.\nAre you " + newDesc + "?\nLet him know in the comments! \n#" + result[0] + " #PixelMike";
+                            return [4 /*yield*/, client
+                                    .uploadPhoto({
+                                    photo: "./pixel_mike.jpg",
+                                    caption: newCaption,
+                                    post: "feed",
+                                })
+                                    .then(function (res) { return __awaiter(void 0, void 0, void 0, function () {
+                                    var media;
+                                    return __generator(this, function (_a) {
+                                        switch (_a.label) {
+                                            case 0:
+                                                media = res.media;
+                                                console.log("https://www.instagram.com/p/" + media.code + "/");
+                                                return [4 /*yield*/, client.addComment({
+                                                        mediaId: media.id,
+                                                        text: "#mikewazowski #monstersinc #disney #pixel #pixar #nft #pixelart #dailyart #shrek #monstersuniversity #funny #8bit #cute #digitalart #illustration",
+                                                    })];
+                                            case 1:
+                                                _a.sent();
+                                                return [2 /*return*/];
+                                        }
+                                    });
+                                }); })];
+                        case 1:
+                            _a.sent();
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+        };
+        loginFunction = function () { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        resultWord = result[0].replace("_", " ");
-                        newDesc = resultWord.slice(result[0].length - 3) === "ing"
-                            ? resultWord
-                            : "feeling " + resultWord;
-                        newCaption = "Pixel Mike is " + newDesc + " today.\nAre you " + newDesc + "?\nLet him know in the comments! \n#" + result[0] + " #PixelMike";
+                        console.log("Logging in...");
                         return [4 /*yield*/, client
-                                .uploadPhoto({
-                                photo: "./pixel_mike.jpg",
-                                caption: newCaption,
-                                post: "feed",
+                                .login()
+                                .then(function () {
+                                console.log("Login successful!");
+                                instagramPostFunction();
                             })
-                                .then(function (res) { return __awaiter(void 0, void 0, void 0, function () {
-                                var media;
-                                return __generator(this, function (_a) {
-                                    switch (_a.label) {
-                                        case 0:
-                                            media = res.media;
-                                            console.log("https://www.instagram.com/p/" + media.code + "/");
-                                            return [4 /*yield*/, client.addComment({
-                                                    mediaId: media.id,
-                                                    text: "#mikewazowski #monstersinc #disney #pixel #pixar #boo #monsterinc #sulley #nft #pixelart #dailyart #pixelartist #shrek #monstersuniversity #funny #design #8bit #8bitart #nycart #16bit #16bitart #cute #artist #instadaily #artdaily #nfts #digitalart #bitart #illustration #pixelartwork",
-                                                })];
-                                        case 1:
-                                            _a.sent();
-                                            return [2 /*return*/];
-                                    }
-                                });
-                            }); })];
+                                .catch(function (err) {
+                                console.log("Login failed!");
+                                console.log(err);
+                            })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
                 }
             });
-        }); });
+        }); };
+        loginFunction();
         return [2 /*return*/];
     });
 }); });

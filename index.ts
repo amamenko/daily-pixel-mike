@@ -25,31 +25,50 @@ cron.schedule("00 12 * * *", async () => {
     }
   );
 
-  wordpos.randAdjective({ count: 1 }, async (result: string[]) => {
-    const resultWord = result[0].replace("_", " ");
-    const newDesc =
-      resultWord.slice(result[0].length - 3) === "ing"
-        ? resultWord
-        : "feeling " + resultWord;
-    const newCaption = `Pixel Mike is ${newDesc} today.\nAre you ${newDesc}?\nLet him know in the comments! \n#${result[0]} #PixelMike`;
+  const instagramPostFunction = () => {
+    wordpos.randAdjective({ count: 1 }, async (result: string[]) => {
+      const resultWord = result[0].replace("_", " ");
+      const newDesc =
+        resultWord.slice(result[0].length - 3) === "ing"
+          ? resultWord
+          : "feeling " + resultWord;
+      const newCaption = `Pixel Mike is ${newDesc} today.\nAre you ${newDesc}?\nLet him know in the comments! \n#${result[0]} #PixelMike`;
+
+      await client
+        .uploadPhoto({
+          photo: "./pixel_mike.jpg",
+          caption: newCaption,
+          post: "feed",
+        })
+        .then(async (res: { [key: string]: { [key: string]: string } }) => {
+          const media = res.media;
+
+          console.log(`https://www.instagram.com/p/${media.code}/`);
+
+          await client.addComment({
+            mediaId: media.id,
+            text: "#mikewazowski #monstersinc #disney #pixel #pixar #nft #pixelart #dailyart #shrek #monstersuniversity #funny #8bit #cute #digitalart #illustration",
+          });
+        });
+    });
+  };
+
+  const loginFunction = async () => {
+    console.log("Logging in...");
 
     await client
-      .uploadPhoto({
-        photo: "./pixel_mike.jpg",
-        caption: newCaption,
-        post: "feed",
+      .login()
+      .then(() => {
+        console.log("Login successful!");
+        instagramPostFunction();
       })
-      .then(async (res: { [key: string]: { [key: string]: string } }) => {
-        const media = res.media;
-
-        console.log(`https://www.instagram.com/p/${media.code}/`);
-
-        await client.addComment({
-          mediaId: media.id,
-          text: "#mikewazowski #monstersinc #disney #pixel #pixar #boo #monsterinc #sulley #nft #pixelart #dailyart #pixelartist #shrek #monstersuniversity #funny #design #8bit #8bitart #nycart #16bit #16bitart #cute #artist #instadaily #artdaily #nfts #digitalart #bitart #illustration #pixelartwork",
-        });
+      .catch((err: Error) => {
+        console.log("Login failed!");
+        console.log(err);
       });
-  });
+  };
+
+  loginFunction();
 });
 
 app.listen(port, () => {
