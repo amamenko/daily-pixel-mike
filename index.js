@@ -66,7 +66,7 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
                             newDesc = resultWord.slice(result[0].length - 3) === "ing"
                                 ? resultWord
                                 : "feeling " + resultWord;
-                            newCaption = "Pixel Mike is " + newDesc + " today.\nAre you " + newDesc + "?\nLet him know in the comments! \n#" + result[0] + " #PixelMike";
+                            newCaption = "Pixel Mike is " + newDesc + " today.\nAre you " + newDesc + "?\nLet him know in the comments! \n#" + result[0].replace(/_|'/g, "") + " #PixelMike";
                             return [4 /*yield*/, client
                                     .uploadPhoto({
                                     photo: "./pixel_mike.jpg",

@@ -32,7 +32,10 @@ cron.schedule("00 12 * * *", async () => {
         resultWord.slice(result[0].length - 3) === "ing"
           ? resultWord
           : "feeling " + resultWord;
-      const newCaption = `Pixel Mike is ${newDesc} today.\nAre you ${newDesc}?\nLet him know in the comments! \n#${result[0]} #PixelMike`;
+      const newCaption = `Pixel Mike is ${newDesc} today.\nAre you ${newDesc}?\nLet him know in the comments! \n#${result[0].replace(
+        /_|'/g,
+        ""
+      )} #PixelMike`;
 
       await client
         .uploadPhoto({
