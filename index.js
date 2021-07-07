@@ -57,45 +57,84 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
             language: "en-US",
         });
         instagramPostFunction = function () {
-            wordpos.randAdjective({ count: 1 }, function (result) { return __awaiter(void 0, void 0, void 0, function () {
-                var resultWord, newDesc, newCaption;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            resultWord = result[0].replace("_", " ");
-                            newDesc = resultWord.slice(result[0].length - 3) === "ing"
-                                ? resultWord
-                                : "feeling " + resultWord;
-                            newCaption = "Pixel Mike is " + newDesc + " today.\nAre you " + newDesc + "?\nLet him know in the comments! \n#" + result[0].replace(/_|'/g, "") + " #PixelMike";
-                            return [4 /*yield*/, client
-                                    .uploadPhoto({
-                                    photo: "./pixel_mike.jpg",
-                                    caption: newCaption,
-                                    post: "feed",
-                                })
-                                    .then(function (res) { return __awaiter(void 0, void 0, void 0, function () {
-                                    var media;
-                                    return __generator(this, function (_a) {
-                                        switch (_a.label) {
-                                            case 0:
-                                                media = res.media;
-                                                console.log("https://www.instagram.com/p/" + media.code + "/");
-                                                return [4 /*yield*/, client.addComment({
-                                                        mediaId: media.id,
-                                                        text: "#mikewazowski #monstersinc #disney #pixel #pixar #nft #pixelart #dailyart #shrek #monstersuniversity #funny #8bit #cute #digitalart #illustration",
-                                                    })];
-                                            case 1:
-                                                _a.sent();
-                                                return [2 /*return*/];
-                                        }
-                                    });
-                                }); })];
-                        case 1:
-                            _a.sent();
-                            return [2 /*return*/];
-                    }
-                });
-            }); });
+            var triesCounter = 0;
+            while (triesCounter < 3) {
+                console.log("Try #" + triesCounter);
+                try {
+                    wordpos.randAdjective({ count: 1 }, function (result) {
+                        var resultWord = result[0].replace(/_/g, " ");
+                        var newDesc = resultWord.slice(result[0].length - 3) === "ing"
+                            ? resultWord
+                            : "feeling " + resultWord;
+                        wordpos.lookupAdjective(result[0], function (res) { return __awaiter(void 0, void 0, void 0, function () {
+                            var definition, firstWordDef, secondWordDef, newDef, newCaption;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        definition = res[0].def;
+                                        firstWordDef = definition.split(" ")[0];
+                                        secondWordDef = definition.split(" ")[1];
+                                        newDef = (firstWordDef
+                                            ? firstWordDef.slice(firstWordDef.length - 3) === "ing"
+                                            : "") ||
+                                            (secondWordDef
+                                                ? secondWordDef.slice(secondWordDef.length - 3) === "ing"
+                                                : "") ||
+                                            firstWordDef === "of" ||
+                                            firstWordDef === "in" ||
+                                            firstWordDef === "most" ||
+                                            (firstWordDef
+                                                ? firstWordDef.slice(firstWordDef.length - 2) === "ed"
+                                                : "") ||
+                                            (firstWordDef
+                                                ? firstWordDef.slice(firstWordDef.length - 2) === "en"
+                                                : "")
+                                            ? "is " + (firstWordDef === "most" ? "the " : "") + definition
+                                            : "is feeling " + definition;
+                                        newCaption = "Pixel Mike is " + newDesc + " today.\nIn other words, he " + newDef
+                                            .replace(/\w*(?<! of )being/g, "")
+                                            .replace(/\s{2,}/g, " ")
+                                            .replace("your", "his")
+                                            .replace("you", "him")
+                                            .replace(/is having(?! or)/g, "has")
+                                            .trim() + ".\nAre you " + newDesc + "?\nLet him know in the comments!\n#" + result[0].replace(/_|'|-/g, "") + " #PixelMike";
+                                        return [4 /*yield*/, client
+                                                .uploadPhoto({
+                                                photo: "./pixel_mike.jpg",
+                                                caption: newCaption,
+                                                post: "feed",
+                                            })
+                                                .then(function (res) { return __awaiter(void 0, void 0, void 0, function () {
+                                                var media;
+                                                return __generator(this, function (_a) {
+                                                    switch (_a.label) {
+                                                        case 0:
+                                                            media = res.media;
+                                                            console.log("https://www.instagram.com/p/" + media.code + "/");
+                                                            return [4 /*yield*/, client.addComment({
+                                                                    mediaId: media.id,
+                                                                    text: "#mikewazowski #monstersinc #disney #pixel #pixar #nft #pixelart #dailyart #shrek #monstersuniversity #funny #8bit #cute #digitalart #illustration",
+                                                                })];
+                                                        case 1:
+                                                            _a.sent();
+                                                            return [2 /*return*/];
+                                                    }
+                                                });
+                                            }); })];
+                                    case 1:
+                                        _a.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                    });
+                    break;
+                }
+                catch (err) {
+                    console.log(err);
+                }
+                triesCounter++;
+            }
         };
         loginFunction = function () { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {

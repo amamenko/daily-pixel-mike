@@ -26,34 +26,82 @@ cron.schedule("00 12 * * *", async () => {
   );
 
   const instagramPostFunction = () => {
-    wordpos.randAdjective({ count: 1 }, async (result: string[]) => {
-      const resultWord = result[0].replace("_", " ");
-      const newDesc =
-        resultWord.slice(result[0].length - 3) === "ing"
-          ? resultWord
-          : "feeling " + resultWord;
-      const newCaption = `Pixel Mike is ${newDesc} today.\nAre you ${newDesc}?\nLet him know in the comments! \n#${result[0].replace(
-        /_|'/g,
-        ""
-      )} #PixelMike`;
+    let triesCounter = 0;
 
-      await client
-        .uploadPhoto({
-          photo: "./pixel_mike.jpg",
-          caption: newCaption,
-          post: "feed",
-        })
-        .then(async (res: { [key: string]: { [key: string]: string } }) => {
-          const media = res.media;
+    while (triesCounter < 3) {
+      console.log(`Try #${triesCounter}`);
+      try {
+        wordpos.randAdjective({ count: 1 }, (result: string[]) => {
+          const resultWord = result[0].replace(/_/g, " ");
+          const newDesc =
+            resultWord.slice(result[0].length - 3) === "ing"
+              ? resultWord
+              : "feeling " + resultWord;
 
-          console.log(`https://www.instagram.com/p/${media.code}/`);
+          wordpos.lookupAdjective(
+            result[0],
+            async (res: { [key: string]: string }[]) => {
+              const definition = res[0].def;
+              const firstWordDef = definition.split(" ")[0];
+              const secondWordDef = definition.split(" ")[1];
 
-          await client.addComment({
-            mediaId: media.id,
-            text: "#mikewazowski #monstersinc #disney #pixel #pixar #nft #pixelart #dailyart #shrek #monstersuniversity #funny #8bit #cute #digitalart #illustration",
-          });
+              const newDef =
+                (firstWordDef
+                  ? firstWordDef.slice(firstWordDef.length - 3) === "ing"
+                  : "") ||
+                (secondWordDef
+                  ? secondWordDef.slice(secondWordDef.length - 3) === "ing"
+                  : "") ||
+                firstWordDef === "of" ||
+                firstWordDef === "in" ||
+                firstWordDef === "most" ||
+                (firstWordDef
+                  ? firstWordDef.slice(firstWordDef.length - 2) === "ed"
+                  : "") ||
+                (firstWordDef
+                  ? firstWordDef.slice(firstWordDef.length - 2) === "en"
+                  : "")
+                  ? "is " + (firstWordDef === "most" ? "the " : "") + definition
+                  : "is feeling " + definition;
+
+              const newCaption = `Pixel Mike is ${newDesc} today.\nIn other words, he ${newDef
+                .replace(/\w*(?<! of )being/g, "")
+                .replace(/\s{2,}/g, " ")
+                .replace("your", "his")
+                .replace("you", "him")
+                .replace(/is having(?! or)/g, "has")
+                .trim()}.\nAre you ${newDesc}?\nLet him know in the comments!\n#${result[0].replace(
+                /_|'|-/g,
+                ""
+              )} #PixelMike`;
+
+              await client
+                .uploadPhoto({
+                  photo: "./pixel_mike.jpg",
+                  caption: newCaption,
+                  post: "feed",
+                })
+                .then(
+                  async (res: { [key: string]: { [key: string]: string } }) => {
+                    const media = res.media;
+
+                    console.log(`https://www.instagram.com/p/${media.code}/`);
+
+                    await client.addComment({
+                      mediaId: media.id,
+                      text: "#mikewazowski #monstersinc #disney #pixel #pixar #nft #pixelart #dailyart #shrek #monstersuniversity #funny #8bit #cute #digitalart #illustration",
+                    });
+                  }
+                );
+            }
+          );
         });
-    });
+        break;
+      } catch (err) {
+        console.log(err);
+      }
+      triesCounter++;
+    }
   };
 
   const loginFunction = async () => {
