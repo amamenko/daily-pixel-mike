@@ -61,7 +61,28 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
             while (triesCounter < 3) {
                 console.log("Try #" + triesCounter);
                 try {
-                    wordpos.randAdjective({ count: 1 }, function (result) {
+                    wordpos.randAdjective({ count: 5 }, function (res) {
+                        var resultArr = res.filter(function (item) {
+                            // Must contain at least one vowel
+                            return /[aeiouy]/i.test(item) &&
+                                // If digits present, allow only digits with letters on both sides
+                                (/\d/.test(item)
+                                    ? /(?<=[a-zA-Z])\d+(?=[a-zA-Z])/i.test(item)
+                                    : true) &&
+                                // No words with two or more dots
+                                !/^(?:[^.]*[.]){2,}[^.]*$/.test(item) &&
+                                // No lower-case Roman numerals
+                                !/^(?=[mdclxvi])m*(c[md]|d?c{0,3})(x[cl]|l?x{0,3})(i[xv]|v?i{0,3})$/i.test(item) &&
+                                // No spelled-out numbers (other than one or ten)
+                                !/(two|three|four|five|six|seven|eight|nine|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand)/i.test(item);
+                        });
+                        var result = [""];
+                        if (resultArr.length > 0) {
+                            result = resultArr;
+                        }
+                        else {
+                            result = res;
+                        }
                         var resultWord = result[0].replace(/_/g, " ");
                         var newDesc = resultWord.slice(result[0].length - 3) === "ing"
                             ? resultWord
@@ -95,7 +116,7 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
                                             .replace(/\w*(?<! of )being/g, "")
                                             .replace(/\s{2,}/g, " ")
                                             .replace("your", "his")
-                                            .replace("you", "him")
+                                            .replace("you", "he")
                                             .replace(/is having(?! or)/g, "has")
                                             .trim() + ".\nAre you " + newDesc + "?\nLet him know in the comments!\n#" + result[0].replace(/_|'|-/g, "") + " #PixelMike";
                                         return [4 /*yield*/, client
