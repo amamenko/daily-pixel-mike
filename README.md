@@ -33,7 +33,7 @@ Every post includes a custom caption that includes Pixel Mike's "feeling" of the
 
 The server initially logs in to Instagram with a username and password. It then persists the authenticated cookies in a cookie store via [tough-cookie-filestore2](https://www.npmjs.com/package/tough-cookie-filestore2) for future use. The server is deployed to [Heroku](https://www.heroku.com) and the Heroku dyno kept awake with [UptimeRobot](https://uptimerobot.com/).
 
-I expect to make a video tutorial for this project in the near future, in the same style as my [Inky Doodle](https://github.com/amamenko/inky-doodle) tutorial (which can be found on YouTube [here](https://www.youtube.com/watch?v=XzyYi_yv86A)), but hopefully a bit shorter.
+I have created a YouTube tutorial for this project, which can be found [here](https://www.youtube.com/watch?v=E46vCLlJ2Dw). It includes configuring Heroku, setting up an Instagram client, and configuring a cookie store.
 
 ## Local Development
 
