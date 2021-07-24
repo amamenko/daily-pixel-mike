@@ -168,10 +168,44 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
                                 console.log("Login successful!");
                                 instagramPostFunction();
                             })
-                                .catch(function (err) {
-                                console.log("Login failed!");
-                                console.log(err);
-                            })];
+                                .catch(function (err) { return __awaiter(void 0, void 0, void 0, function () {
+                                var delayedLoginFunction;
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0:
+                                            console.log("Login failed!");
+                                            console.log(err);
+                                            delayedLoginFunction = function (timeout) { return __awaiter(void 0, void 0, void 0, function () {
+                                                return __generator(this, function (_a) {
+                                                    setTimeout(function () { return __awaiter(void 0, void 0, void 0, function () {
+                                                        return __generator(this, function (_a) {
+                                                            switch (_a.label) {
+                                                                case 0: return [4 /*yield*/, client
+                                                                        .login()
+                                                                        .then(function () {
+                                                                        console.log("Login successful on the second try!");
+                                                                        instagramPostFunction();
+                                                                    })
+                                                                        .catch(function (err) {
+                                                                        console.log("Login failed again!");
+                                                                        console.log(err);
+                                                                    })];
+                                                                case 1:
+                                                                    _a.sent();
+                                                                    return [2 /*return*/];
+                                                            }
+                                                        });
+                                                    }); }, timeout);
+                                                    return [2 /*return*/];
+                                                });
+                                            }); };
+                                            return [4 /*yield*/, delayedLoginFunction(60000)];
+                                        case 1:
+                                            _a.sent();
+                                            return [2 /*return*/];
+                                    }
+                                });
+                            }); })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];

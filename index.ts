@@ -141,9 +141,26 @@ cron.schedule("00 12 * * *", async () => {
         console.log("Login successful!");
         instagramPostFunction();
       })
-      .catch((err: Error) => {
+      .catch(async (err: Error) => {
         console.log("Login failed!");
         console.log(err);
+
+        const delayedLoginFunction = async (timeout: number) => {
+          setTimeout(async () => {
+            await client
+              .login()
+              .then(() => {
+                console.log("Login successful on the second try!");
+                instagramPostFunction();
+              })
+              .catch((err: Error) => {
+                console.log("Login failed again!");
+                console.log(err);
+              });
+          }, timeout);
+        };
+
+        await delayedLoginFunction(60000);
       });
   };
 
