@@ -42,6 +42,7 @@ var FileCookieStore = require("tough-cookie-filestore2");
 var cron = require("node-cron");
 var WordPOS = require("wordpos");
 var wordpos = new WordPOS();
+var fs = require("fs");
 require("dotenv").config();
 var port = process.env.PORT || 4000;
 // Upload new Pixel Mike post to Instagram every day at 12:00 PM
@@ -56,7 +57,7 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
         }, {
             language: "en-US",
         });
-        instagramPostFunction = function () {
+        instagramPostFunction = function (currentClient) {
             var triesCounter = 0;
             while (triesCounter < 3) {
                 console.log("Try #" + triesCounter);
@@ -119,7 +120,7 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
                                             .replace("you", "he")
                                             .replace(/is having(?! or)/g, "has")
                                             .trim() + ".\nAre you " + newDesc + "?\nLet him know in the comments!\n#" + result[0].replace(/_|'|-/g, "") + " #PixelMike";
-                                        return [4 /*yield*/, client
+                                        return [4 /*yield*/, currentClient
                                                 .uploadPhoto({
                                                 photo: "./pixel_mike.jpg",
                                                 caption: newCaption,
@@ -132,7 +133,7 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
                                                         case 0:
                                                             media = res.media;
                                                             console.log("https://www.instagram.com/p/" + media.code + "/");
-                                                            return [4 /*yield*/, client.addComment({
+                                                            return [4 /*yield*/, currentClient.addComment({
                                                                     mediaId: media.id,
                                                                     text: "#mikewazowski #monstersinc #disney #pixel #pixar #nft #pixelart #dailyart #shrek #monstersuniversity #funny #8bit #cute #digitalart #illustration",
                                                                 })];
@@ -166,30 +167,42 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
                                 .login()
                                 .then(function () {
                                 console.log("Login successful!");
-                                instagramPostFunction();
+                                instagramPostFunction(client);
                             })
                                 .catch(function (err) { return __awaiter(void 0, void 0, void 0, function () {
-                                var delayedLoginFunction;
+                                var newCookieStore, newClient, delayedLoginFunction;
                                 return __generator(this, function (_a) {
                                     switch (_a.label) {
                                         case 0:
                                             console.log("Login failed!");
                                             console.log(err);
+                                            console.log("Deleting cookies, waiting 2 minutes, then logging in again and setting new cookie store");
+                                            fs.unlinkSync("./cookies.json");
+                                            newCookieStore = new FileCookieStore("./cookies.json");
+                                            newClient = new Instagram({
+                                                username: process.env.INSTAGRAM_USERNAME,
+                                                password: process.env.INSTAGRAM_PASSWORD,
+                                                cookieStore: newCookieStore,
+                                            }, {
+                                                language: "en-US",
+                                            });
                                             delayedLoginFunction = function (timeout) { return __awaiter(void 0, void 0, void 0, function () {
                                                 return __generator(this, function (_a) {
                                                     setTimeout(function () { return __awaiter(void 0, void 0, void 0, function () {
                                                         return __generator(this, function (_a) {
                                                             switch (_a.label) {
-                                                                case 0: return [4 /*yield*/, client
-                                                                        .login()
-                                                                        .then(function () {
-                                                                        console.log("Login successful on the second try!");
-                                                                        instagramPostFunction();
-                                                                    })
-                                                                        .catch(function (err) {
-                                                                        console.log("Login failed again!");
-                                                                        console.log(err);
-                                                                    })];
+                                                                case 0:
+                                                                    console.log("Logging in again.");
+                                                                    return [4 /*yield*/, newClient
+                                                                            .login()
+                                                                            .then(function () {
+                                                                            console.log("Login successful on the second try!");
+                                                                            instagramPostFunction(newClient);
+                                                                        })
+                                                                            .catch(function (err) {
+                                                                            console.log("Login failed again!");
+                                                                            console.log(err);
+                                                                        })];
                                                                 case 1:
                                                                     _a.sent();
                                                                     return [2 /*return*/];
@@ -199,8 +212,10 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
                                                     return [2 /*return*/];
                                                 });
                                             }); };
-                                            return [4 /*yield*/, delayedLoginFunction(60000)];
+                                            // Wait 2 minutes before trying to log in again
+                                            return [4 /*yield*/, delayedLoginFunction(120000)];
                                         case 1:
+                                            // Wait 2 minutes before trying to log in again
                                             _a.sent();
                                             return [2 /*return*/];
                                     }

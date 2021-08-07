@@ -5,6 +5,7 @@ const FileCookieStore = require("tough-cookie-filestore2");
 const cron = require("node-cron");
 const WordPOS = require("wordpos");
 const wordpos = new WordPOS();
+const fs = require("fs");
 require("dotenv").config();
 
 const port = process.env.PORT || 4000;
@@ -25,7 +26,7 @@ cron.schedule("00 12 * * *", async () => {
     }
   );
 
-  const instagramPostFunction = () => {
+  const instagramPostFunction = (currentClient: typeof client) => {
     let triesCounter = 0;
 
     while (triesCounter < 3) {
@@ -103,7 +104,7 @@ cron.schedule("00 12 * * *", async () => {
                 ""
               )} #PixelMike`;
 
-              await client
+              await currentClient
                 .uploadPhoto({
                   photo: "./pixel_mike.jpg",
                   caption: newCaption,
@@ -115,7 +116,7 @@ cron.schedule("00 12 * * *", async () => {
 
                     console.log(`https://www.instagram.com/p/${media.code}/`);
 
-                    await client.addComment({
+                    await currentClient.addComment({
                       mediaId: media.id,
                       text: "#mikewazowski #monstersinc #disney #pixel #pixar #nft #pixelart #dailyart #shrek #monstersuniversity #funny #8bit #cute #digitalart #illustration",
                     });
@@ -139,19 +140,37 @@ cron.schedule("00 12 * * *", async () => {
       .login()
       .then(() => {
         console.log("Login successful!");
-        instagramPostFunction();
+        instagramPostFunction(client);
       })
       .catch(async (err: Error) => {
         console.log("Login failed!");
         console.log(err);
 
+        console.log(
+          "Deleting cookies, waiting 2 minutes, then logging in again and setting new cookie store"
+        );
+        fs.unlinkSync("./cookies.json");
+        const newCookieStore = new FileCookieStore("./cookies.json");
+
+        const newClient = new Instagram(
+          {
+            username: process.env.INSTAGRAM_USERNAME,
+            password: process.env.INSTAGRAM_PASSWORD,
+            cookieStore: newCookieStore,
+          },
+          {
+            language: "en-US",
+          }
+        );
+
         const delayedLoginFunction = async (timeout: number) => {
           setTimeout(async () => {
-            await client
+            console.log("Logging in again.");
+            await newClient
               .login()
               .then(() => {
                 console.log("Login successful on the second try!");
-                instagramPostFunction();
+                instagramPostFunction(newClient);
               })
               .catch((err: Error) => {
                 console.log("Login failed again!");
@@ -160,7 +179,8 @@ cron.schedule("00 12 * * *", async () => {
           }, timeout);
         };
 
-        await delayedLoginFunction(60000);
+        // Wait 2 minutes before trying to log in again
+        await delayedLoginFunction(120000);
       });
   };
 
