@@ -120,6 +120,7 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
                                             .replace("you", "he")
                                             .replace(/is having(?! or)/g, "has")
                                             .trim() + ".\nAre you " + newDesc + "?\nLet him know in the comments!\n#" + result[0].replace(/_|'|-/g, "") + " #PixelMike";
+                                        if (!currentClient) return [3 /*break*/, 2];
                                         return [4 /*yield*/, currentClient
                                                 .uploadPhoto({
                                                 photo: "./pixel_mike.jpg",
@@ -143,8 +144,9 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
                                                     }
                                                 });
                                             }); })];
-                                    case 1:
-                                        _a.sent();
+                                    case 1: return [2 /*return*/, _a.sent()];
+                                    case 2:
+                                        console.log("Instagram client does not exist!");
                                         return [2 /*return*/];
                                 }
                             });

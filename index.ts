@@ -104,24 +104,31 @@ cron.schedule("00 12 * * *", async () => {
                 ""
               )} #PixelMike`;
 
-              await currentClient
-                .uploadPhoto({
-                  photo: "./pixel_mike.jpg",
-                  caption: newCaption,
-                  post: "feed",
-                })
-                .then(
-                  async (res: { [key: string]: { [key: string]: string } }) => {
-                    const media = res.media;
+              if (currentClient) {
+                return await currentClient
+                  .uploadPhoto({
+                    photo: "./pixel_mike.jpg",
+                    caption: newCaption,
+                    post: "feed",
+                  })
+                  .then(
+                    async (res: {
+                      [key: string]: { [key: string]: string };
+                    }) => {
+                      const media = res.media;
 
-                    console.log(`https://www.instagram.com/p/${media.code}/`);
+                      console.log(`https://www.instagram.com/p/${media.code}/`);
 
-                    await currentClient.addComment({
-                      mediaId: media.id,
-                      text: "#mikewazowski #monstersinc #disney #pixel #pixar #nft #pixelart #dailyart #shrek #monstersuniversity #funny #8bit #cute #digitalart #illustration",
-                    });
-                  }
-                );
+                      await currentClient.addComment({
+                        mediaId: media.id,
+                        text: "#mikewazowski #monstersinc #disney #pixel #pixar #nft #pixelart #dailyart #shrek #monstersuniversity #funny #8bit #cute #digitalart #illustration",
+                      });
+                    }
+                  );
+              } else {
+                console.log("Instagram client does not exist!");
+                return;
+              }
             }
           );
         });
