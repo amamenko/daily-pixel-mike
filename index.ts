@@ -99,7 +99,11 @@ cron.schedule("00 12 * * *", async () => {
                 const newCaption = `Pixel Mike is ${newDesc} today.\nIn other words, he ${newDef
                   .replace(/\w*(?<! of )being/g, "")
                   .replace(/\s{2,}/g, " ")
-                  .replace("your", "his")
+                  // Replace possessives with male term
+                  .replace(
+                    /(?<![a-zA-Z0-9])your(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])her(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])their(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])my(?![a-zA-Z0-9])|(?<![a-zA-Z0-9])our(?![a-zA-Z0-9])/gim,
+                    "his"
+                  )
                   .replace("you", "he")
                   .replace(/is having(?! or)/g, "has")
                   .trim()}.\nAre you ${newDesc}?\nLet him know in the comments!\n#${result[0].replace(
