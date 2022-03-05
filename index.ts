@@ -71,7 +71,8 @@ cron.schedule("00 12 * * *", async () => {
             wordpos.lookupAdjective(
               result[0],
               async (res: { [key: string]: string }[]) => {
-                const definition = res[0].def;
+                let definition = res[0].def;
+                definition = definition.replace(/\(([^)]+)\)/gm, "").trim();
                 const firstWordDef = definition.split(" ")[0];
                 const secondWordDef = definition.split(" ")[1];
 

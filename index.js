@@ -95,6 +95,7 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
                                     switch (_a.label) {
                                         case 0:
                                             definition = res[0].def;
+                                            definition = definition.replace(/\(([^)]+)\)/gm, "").trim();
                                             firstWordDef = definition.split(" ")[0];
                                             secondWordDef = definition.split(" ")[1];
                                             newDef = (firstWordDef
