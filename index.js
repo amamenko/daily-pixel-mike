@@ -35,22 +35,27 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var express = require("express");
-var app = express();
-var Instagram = require("instagram-web-api");
-var FileCookieStore = require("tough-cookie-filestore2");
-var cron = require("node-cron");
-var WordPOS = require("wordpos");
-var wordpos = new WordPOS();
-var fs = require("fs");
-require("dotenv").config();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var express_1 = __importDefault(require("express"));
+var instagram_web_api_1 = __importDefault(require("instagram-web-api"));
+var tough_cookie_filestore2_1 = __importDefault(require("tough-cookie-filestore2"));
+var node_cron_1 = __importDefault(require("node-cron"));
+var wordpos_1 = __importDefault(require("wordpos"));
+var fs_1 = __importDefault(require("fs"));
+var dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+var app = express_1.default();
+var wordpos = new wordpos_1.default();
 var port = process.env.PORT || 4000;
 // Upload new Pixel Mike post to Instagram every day at 12:00 PM
-cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void 0, function () {
+node_cron_1.default.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void 0, function () {
     var cookieStore, client, instagramPostFunction, loginFunction;
     return __generator(this, function (_a) {
-        cookieStore = new FileCookieStore("./cookies.json");
-        client = new Instagram({
+        cookieStore = new tough_cookie_filestore2_1.default("./cookies.json");
+        client = new instagram_web_api_1.default({
             username: process.env.INSTAGRAM_USERNAME,
             password: process.env.INSTAGRAM_PASSWORD,
             cookieStore: cookieStore,
@@ -188,9 +193,9 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
                                             console.log("Login failed!");
                                             console.log(err);
                                             console.log("Deleting cookies, waiting 2 minutes, then logging in again and setting new cookie store");
-                                            fs.unlinkSync("./cookies.json");
-                                            newCookieStore = new FileCookieStore("./cookies.json");
-                                            newClient = new Instagram({
+                                            fs_1.default.unlinkSync("./cookies.json");
+                                            newCookieStore = new tough_cookie_filestore2_1.default("./cookies.json");
+                                            newClient = new instagram_web_api_1.default({
                                                 username: process.env.INSTAGRAM_USERNAME,
                                                 password: process.env.INSTAGRAM_PASSWORD,
                                                 cookieStore: newCookieStore,
@@ -242,6 +247,9 @@ cron.schedule("00 12 * * *", function () { return __awaiter(void 0, void 0, void
         return [2 /*return*/];
     });
 }); });
+app.get("/", function (req, res) {
+    res.send("Daily Pixel Mike is up and running!");
+});
 app.listen(port, function () {
     console.log("Listening on port " + port + "...");
 });

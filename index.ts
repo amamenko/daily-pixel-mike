@@ -1,12 +1,14 @@
-const express = require("express");
+import express, { Request, Response } from "express";
+import Instagram from "instagram-web-api";
+import FileCookieStore from "tough-cookie-filestore2";
+import cron from "node-cron";
+import WordPOS from "wordpos";
+import fs from "fs";
+import dotenv from "dotenv";
+dotenv.config();
+
 const app = express();
-const Instagram = require("instagram-web-api");
-const FileCookieStore = require("tough-cookie-filestore2");
-const cron = require("node-cron");
-const WordPOS = require("wordpos");
 const wordpos = new WordPOS();
-const fs = require("fs");
-require("dotenv").config();
 
 const port = process.env.PORT || 4000;
 
@@ -206,6 +208,10 @@ cron.schedule("00 12 * * *", async () => {
   };
 
   loginFunction();
+});
+
+app.get("/", (req: Request, res: Response) => {
+  res.send("Daily Pixel Mike is up and running!");
 });
 
 app.listen(port, () => {
