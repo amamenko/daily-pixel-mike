@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
-import Instagram from "instagram-web-api";
+// @ts-ignore
+import Instagram from "./instagram-web-api/index";
 import FileCookieStore from "tough-cookie-filestore2";
 import cron from "node-cron";
 import WordPOS from "wordpos";

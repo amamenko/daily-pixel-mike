@@ -40,7 +40,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
-var instagram_web_api_1 = __importDefault(require("instagram-web-api"));
+// @ts-ignore
+var index_1 = __importDefault(require("./instagram-web-api/index"));
 var tough_cookie_filestore2_1 = __importDefault(require("tough-cookie-filestore2"));
 var node_cron_1 = __importDefault(require("node-cron"));
 var wordpos_1 = __importDefault(require("wordpos"));
@@ -55,7 +56,7 @@ node_cron_1.default.schedule("00 12 * * *", function () { return __awaiter(void 
     var cookieStore, client, instagramPostFunction, loginFunction;
     return __generator(this, function (_a) {
         cookieStore = new tough_cookie_filestore2_1.default("./cookies.json");
-        client = new instagram_web_api_1.default({
+        client = new index_1.default({
             username: process.env.INSTAGRAM_USERNAME,
             password: process.env.INSTAGRAM_PASSWORD,
             cookieStore: cookieStore,
@@ -195,7 +196,7 @@ node_cron_1.default.schedule("00 12 * * *", function () { return __awaiter(void 
                                             console.log("Deleting cookies, waiting 2 minutes, then logging in again and setting new cookie store");
                                             fs_1.default.unlinkSync("./cookies.json");
                                             newCookieStore = new tough_cookie_filestore2_1.default("./cookies.json");
-                                            newClient = new instagram_web_api_1.default({
+                                            newClient = new index_1.default({
                                                 username: process.env.INSTAGRAM_USERNAME,
                                                 password: process.env.INSTAGRAM_PASSWORD,
                                                 cookieStore: newCookieStore,
